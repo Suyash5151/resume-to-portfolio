@@ -1,9 +1,8 @@
 import React from 'react';
-import emptyuser from '/src/emptyuser.webp';
 import { FaDownload, FaLinkedin } from 'react-icons/fa';
 
 export default function Landing({ sharedValue, data, pdfUrl, resumeFile }) {
-  const profileImage = sharedValue && sharedValue.length > 0 ? sharedValue : emptyuser;
+  const profileImage = sharedValue && sharedValue.length > 0 ? sharedValue : '/emptyuser.webp';
 
   // Enhanced download handler with multiple fallbacks
   const handleDownload = () => {

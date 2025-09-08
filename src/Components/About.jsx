@@ -1,6 +1,5 @@
 // src/pages/AboutMe.jsx
 import React from 'react';
-import emptyuser from '/src/emptyuser.webp';
 
 export default function AboutMe({ sharedValue, data }) {
   const skills = [
@@ -15,7 +14,7 @@ export default function AboutMe({ sharedValue, data }) {
       {/* Left: Profile Image */}
       <div>
         <img
-          src={sharedValue || emptyuser}
+          src={sharedValue || '/emptyuser.webp'}
           alt="About Me"
           className="rounded-xl w-72 h-80 object-cover shadow-lg"
         />
