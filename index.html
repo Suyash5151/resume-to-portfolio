@@ -1,10 +1,20 @@
 <!doctype html>
-<html lang="en" data-theme='THEME_NAME'>
+<html lang="en" data-theme="THEME_NAME">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/header.png" />
+
+    <!-- ✅ Use version query to bypass browser cache -->
+    <link rel="icon" type="image/png" href="/header.png?v=2" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- ✅ Tab name -->
     <title>ResumeFolio</title>
+
+    <!-- ✅ Extra meta tags (optional for better SEO + branding) -->
+    <meta name="description" content="ResumeFolio - Generate a stunning portfolio from your resume." />
+    <meta property="og:title" content="ResumeFolio" />
+    <meta property="og:image" content="/header.png?v=2" />
   </head>
   <body>
     <div id="root"></div>
