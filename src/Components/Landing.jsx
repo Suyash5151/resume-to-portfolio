@@ -51,7 +51,7 @@ export default function Landing({ sharedValue, data, pdfUrl, resumeFile }) {
           alt="Profile"
           className="w-40 h-40 md:w-48 md:h-48 rounded-full object-cover border-4 border-transparent shadow-2xl"
         />
-        <div className="absolute inset-0 rounded-full bg-gradient-to-t from-fuchsia-500/20 to-transparent"></div>
+        <div className="absolute inset-0 rounded-full "></div>
       </div>
 
       {/* Main Heading */}
