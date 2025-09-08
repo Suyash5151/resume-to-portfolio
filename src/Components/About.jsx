@@ -1,6 +1,6 @@
 // src/pages/AboutMe.jsx
 import React from 'react';
-import emptyuser from '/Users/suyash/Desktop/PortfolioCreator/frontend/src/emptyuser.webp';
+import emptyuser from '/src/emptyuser.webp';
 
 export default function AboutMe({ sharedValue, data }) {
   const skills = [

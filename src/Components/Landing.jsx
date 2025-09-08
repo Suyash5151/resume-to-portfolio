@@ -1,5 +1,5 @@
 import React from 'react';
-import emptyuser from '/Users/suyash/Desktop/PortfolioCreator/frontend/src/emptyuser.webp';
+import emptyuser from '/src/emptyuser.webp';
 import { FaDownload, FaLinkedin } from 'react-icons/fa';
 
 export default function Landing({ sharedValue, data, pdfUrl, resumeFile }) {
