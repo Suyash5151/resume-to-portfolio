@@ -3,7 +3,7 @@ import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt } from "react-icons/fa";
 
 export default function Contact({data}) {
   return (
-    <section className="min-h-screen py-20 px-6 md:px-16 bg-black text-white">
+    <section id="contact" className="min-h-screen py-20 px-6 md:px-16 bg-black text-white">
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-5xl font-bold text-center mb-12">Get in <span className="bg-gradient-to-r from-fuchsia-500 via-pink-500 to-orange-400 bg-clip-text text-transparent">touch</span>
         </h2>

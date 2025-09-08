@@ -37,7 +37,7 @@ function Navbar({ user, data }) {
         </div>
 
         {/* Name with Typewriter */}
-        <a className="btn btn-ghost text-xl">
+        <a href="#landing" className="btn btn-ghost text-xl">
           {showTypewriter ? (
             <Typewriter
               words={[user?.name || ""]}

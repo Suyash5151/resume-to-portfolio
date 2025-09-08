@@ -43,7 +43,7 @@ export default function Landing({ sharedValue, data, pdfUrl, resumeFile }) {
   const isDownloadAvailable = resumeFile || pdfUrl;
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6">
+    <div id="landing" className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6">
       {/* Profile Image */}
       <div className="relative mb-8">
         <img

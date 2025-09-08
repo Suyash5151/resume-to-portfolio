@@ -10,7 +10,7 @@ export default function AboutMe({ sharedValue, data }) {
   ];
 
   return (
-    <div className="bg-black text-white py-16 px-6 md:px-20 flex flex-col md:flex-row items-center justify-center gap-10 min-h-screen">
+    <div id="about" className="bg-black text-white py-16 px-6 md:px-20 flex flex-col md:flex-row items-center justify-center gap-10 min-h-screen">
       {/* Left: Profile Image */}
       <div>
         <img
