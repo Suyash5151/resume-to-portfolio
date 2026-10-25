@@ -3,22 +3,49 @@ import axios from 'axios';
 // Dynamically use current hostname so phones on local network connect to the right IP
 const BACKEND_HOST = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || `http://${BACKEND_HOST}:5001/api`;
-const CLIENT_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const SUSPENDED_KEY = 'AIzaSyDbh4GAj6DzApAqtUtfbRdAl7fQ71o8oZM';
+
+export function getActiveApiKey() {
+  if (typeof window !== 'undefined') {
+    const custom = localStorage.getItem('user_gemini_api_key');
+    if (custom && custom.trim()) return custom.trim();
+  }
+  const envKey = import.meta.env.VITE_GEMINI_API_KEY;
+  if (envKey && envKey !== SUSPENDED_KEY && !envKey.includes('AIzaSyDbh4GAj6DzApAqtUtfbRdAl7fQ71o8oZM')) {
+    return envKey.trim();
+  }
+  return '';
+}
+
+export function saveUserApiKey(key) {
+  if (typeof window !== 'undefined') {
+    if (key && key.trim()) {
+      localStorage.setItem('user_gemini_api_key', key.trim());
+    } else {
+      localStorage.removeItem('user_gemini_api_key');
+    }
+  }
+}
 
 const FALLBACK_MODELS = [
-  'models/gemini-3.5-flash-lite',
-  'models/gemini-3.5-flash',
-  'models/gemini-3.7-flash',
-  'models/gemini-flash-latest'
+  'models/gemini-2.5-flash',
+  'models/gemini-2.5-pro',
+  'models/gemini-2.0-flash',
+  'models/gemini-1.5-flash'
 ];
 
 /**
  * Direct client-side fallback if backend proxy is down
  */
 async function callClientGemini(prompt) {
+  const apiKey = getActiveApiKey();
+  if (!apiKey) {
+    throw new Error('Gemini API Key is suspended or not set. Please click "Configure Gemini Key" to enter a free API key from Google AI Studio.');
+  }
+
   let lastError = null;
   for (const model of FALLBACK_MODELS) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${CLIENT_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${apiKey}`;
     try {
       const res = await axios.post(
         url,
@@ -32,11 +59,15 @@ async function callClientGemini(prompt) {
       const text = parts.map(p => p.text).filter(Boolean).join('\n');
       if (text) return text;
     } catch (err) {
-      console.warn(`[Client Fallback] Model ${model} failed:`, err?.response?.data?.error?.message || err.message);
+      const errMsg = err?.response?.data?.error?.message || err.message;
+      console.warn(`[Client Fallback] Model ${model} failed:`, errMsg);
+      if (errMsg.includes('suspended') || errMsg.includes('PERMISSION_DENIED') || errMsg.includes('API_KEY_INVALID')) {
+        throw new Error(`Google reported: Permission denied. Your Gemini API key has been suspended or is invalid. Please click "Configure Gemini Key" to provide a new key.`);
+      }
       lastError = err;
     }
   }
-  throw lastError || new Error('Client-side Gemini call failed.');
+  throw lastError || new Error('Client-side Gemini call failed. Please check your Gemini API key.');
 }
 
 /**

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { FaUpload, FaFileAlt, FaUser, FaCog, FaTrash } from 'react-icons/fa';
-import { parseResume } from "../services/api";
+import { FaUpload, FaFileAlt, FaUser, FaCog, FaTrash, FaKey, FaExternalLinkAlt } from 'react-icons/fa';
+import { parseResume, saveUserApiKey, getActiveApiKey } from "../services/api";
 
 function ResumeInp({ onComplete, onSendValue, onSendJSON, onSendPdfUrl, onSendResumeFile, onSendResumeText }) {
   const [imageURL, setImageURL] = useState(null);
@@ -10,6 +10,9 @@ function ResumeInp({ onComplete, onSendValue, onSendJSON, onSendPdfUrl, onSendRe
   const [inputMethod, setInputMethod] = useState('text');
   const [pdfFile, setPdfFile] = useState(null);
   const [originalResumeFile, setOriginalResumeFile] = useState(null);
+  const [showKeyModal, setShowKeyModal] = useState(false);
+  const [customKey, setCustomKey] = useState(() => localStorage.getItem('user_gemini_api_key') || '');
+  const [keySavedMsg, setKeySavedMsg] = useState('');
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -93,7 +96,17 @@ function ResumeInp({ onComplete, onSendValue, onSendJSON, onSendPdfUrl, onSendRe
       setResponseData({
         error: errorMessage,
       });
-      alert(`Error: ${errorMessage}`);
+
+      if (
+        errorMessage.toLowerCase().includes('suspended') ||
+        errorMessage.toLowerCase().includes('permission') ||
+        errorMessage.toLowerCase().includes('api_key') ||
+        errorMessage.toLowerCase().includes('quota')
+      ) {
+        setShowKeyModal(true);
+      } else {
+        alert(`Error: ${errorMessage}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -119,7 +132,17 @@ function ResumeInp({ onComplete, onSendValue, onSendJSON, onSendPdfUrl, onSendRe
       {/* Your existing JSX structure */}
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-10 relative">
+          <div className="flex justify-end mb-2">
+            <button
+              onClick={() => setShowKeyModal(true)}
+              className="inline-flex items-center gap-2 text-xs bg-gray-900 hover:bg-gray-800 border border-gray-700 hover:border-amber-500/60 text-gray-300 px-3.5 py-1.5 rounded-full transition-all shadow-sm"
+              title="Configure custom Gemini API key"
+            >
+              <FaKey className="text-amber-400" />
+              <span>{localStorage.getItem('user_gemini_api_key') ? 'Custom API Key Active' : 'Configure Gemini Key'}</span>
+            </button>
+          </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Resume <span className="bg-gradient-to-r from-fuchsia-500 via-pink-500 to-orange-400 bg-clip-text text-transparent">Parser</span>
           </h1>
@@ -347,6 +370,98 @@ function ResumeInp({ onComplete, onSendValue, onSendJSON, onSendPdfUrl, onSendRe
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Gemini API Key Modal */}
+        {showKeyModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+            <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md p-6 shadow-2xl text-left">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold flex items-center gap-2 text-white">
+                  <FaKey className="text-amber-400" /> Gemini API Key
+                </h3>
+                <button
+                  onClick={() => setShowKeyModal(false)}
+                  className="p-1.5 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 mb-4 text-xs text-amber-200 leading-relaxed">
+                <span className="font-semibold">Notice:</span> The previous Google Gemini API Key was suspended by Google Cloud. Enter a new, free API key below to continue.
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-xs uppercase text-gray-400 font-semibold mb-1.5">
+                  Enter Gemini API Key
+                </label>
+                <input
+                  type="text"
+                  value={customKey}
+                  onChange={(e) => setCustomKey(e.target.value)}
+                  placeholder="AIzaSy..."
+                  className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-fuchsia-500 font-mono"
+                />
+              </div>
+
+              <div className="flex items-center justify-between mb-5">
+                <a
+                  href="https://aistudio.google.com/app/apikey"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs text-fuchsia-400 hover:text-fuchsia-300 hover:underline flex items-center gap-1.5 font-medium"
+                >
+                  Get free key at Google AI Studio <FaExternalLinkAlt className="text-[10px]" />
+                </a>
+              </div>
+
+              {keySavedMsg && (
+                <div className="text-xs text-emerald-400 mb-4 bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-2.5">
+                  {keySavedMsg}
+                </div>
+              )}
+
+              <div className="flex items-center justify-between gap-3 pt-2 border-t border-gray-800">
+                <button
+                  onClick={() => {
+                    saveUserApiKey('');
+                    setCustomKey('');
+                    setKeySavedMsg('Reset to built-in backup key.');
+                    setTimeout(() => setKeySavedMsg(''), 2000);
+                  }}
+                  className="px-3 py-2 text-xs text-gray-400 hover:text-white transition-colors"
+                >
+                  Reset Default
+                </button>
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowKeyModal(false)}
+                    className="px-4 py-2 text-xs text-gray-400 hover:text-white rounded-xl hover:bg-gray-800 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      saveUserApiKey(customKey);
+                      setKeySavedMsg('API key saved! Retrying parse...');
+                      setTimeout(() => {
+                        setShowKeyModal(false);
+                        setKeySavedMsg('');
+                        if (resumeText.trim()) {
+                          handleSend();
+                        }
+                      }, 700);
+                    }}
+                    className="px-5 py-2 bg-gradient-to-r from-fuchsia-500 to-pink-500 hover:from-fuchsia-600 hover:to-pink-600 rounded-xl text-xs font-semibold text-white shadow-lg transition-transform hover:scale-105"
+                  >
+                    Save & Proceed
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
