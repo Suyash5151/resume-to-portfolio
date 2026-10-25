@@ -115,13 +115,27 @@ function Navbar({
         {/* Action Controls Toolbar */}
         <div className="flex items-center gap-2 sm:gap-2.5">
           
+          {/* Quick Ascend 3D Experience Toggle */}
+          <button
+            onClick={() => onSelectTemplate(selectedTemplate === 'ascend' ? 'modern' : 'ascend')}
+            className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm ${
+              selectedTemplate === 'ascend'
+                ? 'bg-[#f6c343] text-black shadow-[0_0_15px_rgba(246,195,67,0.4)] scale-105'
+                : 'bg-gradient-to-r from-[#f6c343]/15 via-[#ff9e3b]/15 to-[#e07a2c]/15 hover:from-[#f6c343]/30 hover:to-[#e07a2c]/30 border border-[#f6c343]/50 text-[#f6c343] hover:scale-105'
+            }`}
+            title="Toggle Ascend 3D Multi-Page Experience"
+          >
+            <span>🪐</span>
+            <span>{selectedTemplate === 'ascend' ? 'Ascend 3D Active' : 'Ascend 3D'}</span>
+          </button>
+
           {/* 1. Template Switcher (Strategy Pattern) */}
           <div className="dropdown dropdown-end">
             <div 
               tabIndex={0} 
               role="button" 
               className="px-3 py-1.5 rounded-xl bg-gray-900/90 border border-gray-700/80 hover:border-fuchsia-500/60 text-gray-200 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
-              title="Switch Layout Strategy (Modern / Terminal / Executive)"
+              title="Switch Layout Strategy (Ascend 3D / Modern / Terminal / Executive)"
             >
               <FaDesktop className="text-fuchsia-400 text-xs" />
               <span className="hidden md:inline">{currentTemplate.name.split(' ')[0]}</span>

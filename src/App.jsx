@@ -83,12 +83,22 @@ function App() {
       }
     }
 
+    // Check for template parameter (?template=ascend or ?t=ascend)
+    const templateParam = urlParams.get('template') || urlParams.get('t');
+    if (templateParam) {
+      setSelectedTemplate(templateParam);
+    }
+
     // Otherwise check LocalStorage for cached draft
     const saved = loadPortfolioFromStorage();
     if (saved && saved.resumeData) {
       setResumeData(normalizeResumeData(saved.resumeData));
       if (saved.imgurl) setImgurl(saved.imgurl);
-      if (saved.selectedTemplate) setSelectedTemplate(saved.selectedTemplate);
+      if (templateParam) {
+        setSelectedTemplate(templateParam);
+      } else if (saved.selectedTemplate) {
+        setSelectedTemplate(saved.selectedTemplate);
+      }
     }
   }, []);
 
@@ -99,15 +109,15 @@ function App() {
     }
   }, [resumeData, imgurl, selectedTemplate, isSharedView]);
 
-  // 3. Update shareable link whenever resumeData or imgurl changes
+  // 3. Update shareable link whenever resumeData, imgurl or selectedTemplate changes
   useEffect(() => {
     if (resumeData) {
-      const generatedLink = encodePortfolioData(resumeData, imgurl);
+      const generatedLink = encodePortfolioData(resumeData, imgurl, '', selectedTemplate);
       if (generatedLink) {
         setShareUrl(generatedLink);
       }
     }
-  }, [resumeData, imgurl]);
+  }, [resumeData, imgurl, selectedTemplate]);
 
   useEffect(() => {
     window.scrollTo(0, 0);

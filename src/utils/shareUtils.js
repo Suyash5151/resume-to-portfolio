@@ -7,11 +7,12 @@ export const DEFAULT_PORT = '3000';
 /**
  * Encodes portfolio data into a compressed, URL-safe string.
  */
-export function encodePortfolioData(resumeData, imgurl = '', baseUrl = '') {
+export function encodePortfolioData(resumeData, imgurl = '', baseUrl = '', selectedTemplate = '') {
   try {
     const payload = {
       d: resumeData,
-      i: (imgurl && !imgurl.startsWith('blob:')) ? imgurl : ''
+      i: (imgurl && !imgurl.startsWith('blob:')) ? imgurl : '',
+      t: selectedTemplate || ''
     };
     const jsonStr = JSON.stringify(payload);
     const compressed = LZString.compressToEncodedURIComponent(jsonStr);
@@ -34,15 +35,15 @@ export function encodePortfolioData(resumeData, imgurl = '', baseUrl = '') {
  * Generates a Local Wi-Fi Network link (e.g. http://10.17.131.73:3000/?p=...)
  * that works on any phone, tablet, or device connected to the same network.
  */
-export function generateNetworkShareUrl(resumeData, imgurl = '') {
+export function generateNetworkShareUrl(resumeData, imgurl = '', selectedTemplate = '') {
   const networkBase = `http://${LOCAL_NETWORK_IP}:${window.location.port || DEFAULT_PORT}`;
-  return encodePortfolioData(resumeData, imgurl, networkBase);
+  return encodePortfolioData(resumeData, imgurl, networkBase, selectedTemplate);
 }
 
 /**
  * Generates a public cloud / custom domain shareable link.
  */
-export function generateCustomDomainShareUrl(resumeData, imgurl = '', customDomain = '') {
+export function generateCustomDomainShareUrl(resumeData, imgurl = '', customDomain = '', selectedTemplate = '') {
   let base = customDomain.trim();
   if (base && !base.startsWith('http://') && !base.startsWith('https://')) {
     base = `https://${base}`;
@@ -50,7 +51,7 @@ export function generateCustomDomainShareUrl(resumeData, imgurl = '', customDoma
   if (!base) {
     base = 'https://resumefolio-seven.vercel.app';
   }
-  return encodePortfolioData(resumeData, imgurl, base);
+  return encodePortfolioData(resumeData, imgurl, base, selectedTemplate);
 }
 
 /**
@@ -70,7 +71,8 @@ export function decodePortfolioData(paramStr) {
       const parsed = JSON.parse(jsonStr);
       return {
         resumeData: parsed.d || parsed,
-        imgurl: parsed.i || ''
+        imgurl: parsed.i || '',
+        selectedTemplate: parsed.t || 'modern'
       };
     }
   } catch (err) {
