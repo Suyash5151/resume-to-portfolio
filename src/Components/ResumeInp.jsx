@@ -92,21 +92,11 @@ function ResumeInp({ onComplete, onSendValue, onSendJSON, onSendPdfUrl, onSendRe
         e.response?.data?.error?.message ||
         e.response?.data?.error ||
         e.message ||
-        "Something went wrong. Please check your API key or network connection.";
+        "Something went wrong processing the resume.";
       setResponseData({
         error: errorMessage,
       });
-
-      if (
-        errorMessage.toLowerCase().includes('suspended') ||
-        errorMessage.toLowerCase().includes('permission') ||
-        errorMessage.toLowerCase().includes('api_key') ||
-        errorMessage.toLowerCase().includes('quota')
-      ) {
-        setShowKeyModal(true);
-      } else {
-        alert(`Error: ${errorMessage}`);
-      }
+      alert(`Notice: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -379,7 +369,7 @@ function ResumeInp({ onComplete, onSendValue, onSendJSON, onSendPdfUrl, onSendRe
             <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-md p-6 shadow-2xl text-left">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold flex items-center gap-2 text-white">
-                  <FaKey className="text-amber-400" /> Gemini API Key
+                  <FaKey className="text-amber-400" /> Gemini API Key (Optional)
                 </h3>
                 <button
                   onClick={() => setShowKeyModal(false)}
@@ -389,8 +379,8 @@ function ResumeInp({ onComplete, onSendValue, onSendJSON, onSendPdfUrl, onSendRe
                 </button>
               </div>
 
-              <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 mb-4 text-xs text-amber-200 leading-relaxed">
-                <span className="font-semibold">Notice:</span> The previous Google Gemini API Key was suspended by Google Cloud. Enter a new, free API key below to continue.
+              <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 mb-4 text-xs text-emerald-200 leading-relaxed">
+                <span className="font-semibold text-emerald-300">✓ Built-in parsing is active:</span> Resumes parse automatically. Connecting your own free Gemini API key is completely optional if you prefer personalized Google AI quotas.
               </div>
 
               <div className="mb-4">
@@ -428,12 +418,12 @@ function ResumeInp({ onComplete, onSendValue, onSendJSON, onSendPdfUrl, onSendRe
                   onClick={() => {
                     saveUserApiKey('');
                     setCustomKey('');
-                    setKeySavedMsg('Reset to built-in backup key.');
+                    setKeySavedMsg('Cleared custom key. Default parsing active.');
                     setTimeout(() => setKeySavedMsg(''), 2000);
                   }}
                   className="px-3 py-2 text-xs text-gray-400 hover:text-white transition-colors"
                 >
-                  Reset Default
+                  Clear Key
                 </button>
 
                 <div className="flex gap-2">
@@ -446,7 +436,7 @@ function ResumeInp({ onComplete, onSendValue, onSendJSON, onSendPdfUrl, onSendRe
                   <button
                     onClick={() => {
                       saveUserApiKey(customKey);
-                      setKeySavedMsg('API key saved! Retrying parse...');
+                      setKeySavedMsg('API key saved successfully!');
                       setTimeout(() => {
                         setShowKeyModal(false);
                         setKeySavedMsg('');
@@ -457,7 +447,7 @@ function ResumeInp({ onComplete, onSendValue, onSendJSON, onSendPdfUrl, onSendRe
                     }}
                     className="px-5 py-2 bg-gradient-to-r from-fuchsia-500 to-pink-500 hover:from-fuchsia-600 hover:to-pink-600 rounded-xl text-xs font-semibold text-white shadow-lg transition-transform hover:scale-105"
                   >
-                    Save & Proceed
+                    Save & Close
                   </button>
                 </div>
               </div>
