@@ -83,7 +83,7 @@ function App() {
       }
     }
 
-    // Check for template parameter (?template=ascend or ?t=ascend)
+    // Check for template parameter (?template=... or ?t=...)
     const templateParam = urlParams.get('template') || urlParams.get('t');
     if (templateParam) {
       setSelectedTemplate(templateParam);

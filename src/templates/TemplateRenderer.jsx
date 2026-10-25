@@ -1,17 +1,9 @@
 import React from 'react';
-import AscendTemplate from './AscendTemplate';
 import ModernTemplate from './ModernTemplate';
 import TerminalTemplate from './TerminalTemplate';
 import ExecutiveTemplate from './ExecutiveTemplate';
 
 export const TEMPLATES = [
-  {
-    id: 'ascend',
-    name: 'Ascend 3D / Cosmic Multi-Page',
-    tagline: 'Immersive WebGL planet, multi-page tabs, golden radar pings & luxury aesthetics',
-    accentColor: 'from-[#f6c343] to-[#e07a2c]',
-    component: AscendTemplate
-  },
   {
     id: 'modern',
     name: 'Modern Glassmorphic',
