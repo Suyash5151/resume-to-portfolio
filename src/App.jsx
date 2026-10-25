@@ -18,6 +18,7 @@ import {
   saveSelectedTemplate, 
   loadSelectedTemplate 
 } from './utils/storage';
+import { Analytics } from '@vercel/analytics/react';
 
 function App() {
   const [showPortfolio, setShowPortfolio] = useState(false);
@@ -235,6 +236,7 @@ function App() {
           />
         </div>
       )}
+      <Analytics />
     </div>
   );
 }
