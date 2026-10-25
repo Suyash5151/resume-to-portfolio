@@ -1,16 +1,15 @@
-// 1. Enhanced ResumeInp.jsx - Add better file handling
 import React, { useState } from "react";
-import axios from 'axios';
 import { FaUpload, FaFileAlt, FaUser, FaCog, FaTrash } from 'react-icons/fa';
+import { parseResume } from "../services/api";
 
-function ResumeInp({ onComplete, onSendValue, onSendJSON, onSendPdfUrl, onSendResumeFile }) {
+function ResumeInp({ onComplete, onSendValue, onSendJSON, onSendPdfUrl, onSendResumeFile, onSendResumeText }) {
   const [imageURL, setImageURL] = useState(null);
   const [resumeText, setResumeText] = useState('');
   const [responseData, setResponseData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [inputMethod, setInputMethod] = useState('text');
   const [pdfFile, setPdfFile] = useState(null);
-  const [originalResumeFile, setOriginalResumeFile] = useState(null); // Store original file
+  const [originalResumeFile, setOriginalResumeFile] = useState(null);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -26,18 +25,14 @@ function ResumeInp({ onComplete, onSendValue, onSendJSON, onSendPdfUrl, onSendRe
     const file = e.target.files[0];
     if (file && file.type === 'application/pdf') {
       setPdfFile(file);
-      setOriginalResumeFile(file); // Store the original file
+      setOriginalResumeFile(file);
       
-      // Create object URL for download
       const url = URL.createObjectURL(file);
-      
-      // Send both file and URL to parent components
       if (typeof onSendPdfUrl === 'function') onSendPdfUrl(url);
       if (typeof onSendResumeFile === 'function') onSendResumeFile(file);
       
       setLoading(true);
       try {
-        // Load PDF.js dynamically
         if (!window.pdfjsLib) {
           const script = document.createElement('script');
           script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
@@ -61,18 +56,18 @@ function ResumeInp({ onComplete, onSendValue, onSendJSON, onSendPdfUrl, onSendRe
         }
         
         setResumeText(extractedText);
-        console.log("Extracted text from PDF:", extractedText);
+        if (typeof onSendResumeText === 'function') onSendResumeText(extractedText);
       } catch (error) {
         console.error("Error extracting text from PDF:", error);
         alert("Error reading PDF file. Please try again or use text input.");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     } else {
       alert("Please select a valid PDF file.");
     }
   };
 
-  // Rest of your component logic remains the same...
   const handleSend = async () => {
     if (!resumeText.trim()) {
       alert("Please provide resume text either by typing or uploading a PDF.");
@@ -81,78 +76,30 @@ function ResumeInp({ onComplete, onSendValue, onSendJSON, onSendPdfUrl, onSendRe
 
     setLoading(true);
 
-    const prompt = `
-Extract the following from the resume text below:
-- name
-- location (if available)
-- projects (if available) and generate a description of the project and return nested arrays of the form[[Project Title,Description]] etc.
--Generate an about me of 5-6 lines providing details of professional summary
-- education (if available) and give education in the form of nested arrays consisting of Degree name, college/school name and branch(if graduation course ) ,years studied, and mention marks if provided
-- certifications (if available)
-- awards (if available)
-- languages (if available)
-- profession (based on experience, skills, degree, and year)
-- skills (as an array keep length of array  as multiples of 6 if there are more than 6 and return only the major skills)
--email id
--phone number
--experience and companies they have worked for give education in the form of nested arrays only no key:value pairs strictly consisting of job title and company ,starting year to  end year as a string like start-end or (present)
--generate some catchy one liners based on what you might extract from a resume (like profession, traits, or work habits) but make sure its only 4-5 words at max:
--extract the linkedin url if it is not complete then add https://www.linkedin.com/in/ and then add the persons url.
-
-Return only this JSON format:
-{
-  "name": "Your Name",
-  "profession": "Your Profession",
-  "location": "Your Location",
-  "projects": ["Project1", "Project2"],
-  "Experience": ["Experience1", "Experience2"],
-  "education": ["Degree1", "Degree2"],
-  "certifications": ["Certification1", "Certification2"],
-  "awards": ["Award1", "Award2"],
-  "languages": ["Language1", "Language2"],
-  "skills": ["Skill1", "Skill2"],
-  "phone": "Phone Number",
-  "email" : "email id",
-  "oneliner": "Catchy One liner",
-  "linkedin":"Linkedin url",
-  "about":"About Me"
-}
-
-Resume Text:
-${resumeText}`;
-
-    const API_URL = import.meta.env.VITE_GEMINI_API_URL;
-    const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-
     try {
-      const res = await axios.post(
-        `${API_URL}?key=${API_KEY}`,
-        { contents: [{ parts: [{ text: prompt }] }] }
-      );
+      if (typeof onSendResumeText === 'function') onSendResumeText(resumeText);
+      const json = await parseResume(resumeText);
+      setResponseData(json);
 
-      const output = res.data.candidates[0].content.parts[0].text;
-      console.log("Response from Gemini:", output);
-
-      const match = output.match(/{[\s\S]*}/);
-      if (match) {
-        const json = JSON.parse(match[0]);
-        setResponseData(json);
-
-        if (typeof onComplete === 'function') {
-          onComplete(true);
-          console.log("Gemini response processed — moving to next page.");
-        }
-        if (typeof onSendJSON === 'function') onSendJSON(json);
-      } else {
-        setResponseData({ error: "Could not extract JSON." });
-      }
+      if (typeof onComplete === "function") onComplete(true);
+      if (typeof onSendJSON === "function") onSendJSON(json);
     } catch (e) {
-      console.error(e);
-      setResponseData({ error: "Something went wrong." });
+      console.error("API Error:", e);
+      const errorMessage =
+        e.response?.data?.error?.message ||
+        e.response?.data?.error ||
+        e.message ||
+        "Something went wrong. Please check your API key or network connection.";
+      setResponseData({
+        error: errorMessage,
+      });
+      alert(`Error: ${errorMessage}`);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
+
+
 
   const clearAll = () => {
     setResumeText('');

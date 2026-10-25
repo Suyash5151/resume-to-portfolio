@@ -1,7 +1,7 @@
 import React from 'react';
-import { FaDownload, FaLinkedin } from 'react-icons/fa';
+import { FaDownload, FaLinkedin, FaShareAlt } from 'react-icons/fa';
 
-export default function Landing({ sharedValue, data, pdfUrl, resumeFile }) {
+export default function Landing({ sharedValue, data, pdfUrl, resumeFile, onOpenShare }) {
   const profileImage = sharedValue && sharedValue.length > 0 ? sharedValue : '/emptyuser.webp';
 
   // Enhanced download handler with multiple fallbacks
@@ -57,7 +57,7 @@ export default function Landing({ sharedValue, data, pdfUrl, resumeFile }) {
       {/* Main Heading */}
       <h1 className="mt-6 text-3xl md:text-5xl font-bold text-center leading-tight max-w-4xl">
         I'm <span className="bg-gradient-to-r from-fuchsia-500 via-pink-500 to-orange-400 bg-clip-text text-transparent">
-          {data?.name || "No name"}
+          {data?.name || "Developer"}
         </span>,
         <br />
         <span className="text-2xl md:text-4xl font-medium text-gray-300">
@@ -94,8 +94,18 @@ export default function Landing({ sharedValue, data, pdfUrl, resumeFile }) {
           disabled={!isDownloadAvailable}
         >
           <FaDownload className="text-lg" />
-          {isDownloadAvailable ? "My Resume" : "My Resume"}
+          My Resume
         </button>
+
+        {onOpenShare && (
+          <button
+            onClick={onOpenShare}
+            className="px-8 py-4 rounded-full bg-gray-900 border border-fuchsia-500/50 hover:border-fuchsia-500 text-fuchsia-300 hover:text-white hover:bg-fuchsia-500/20 font-semibold flex items-center justify-center gap-2 transition-all transform hover:scale-105 shadow-lg"
+          >
+            <FaShareAlt className="text-lg" />
+            Share Portfolio
+          </button>
+        )}
       </div>
 
      

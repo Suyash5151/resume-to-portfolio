@@ -2,12 +2,7 @@
 import React from 'react';
 
 export default function AboutMe({ sharedValue, data }) {
-  const skills = [
-    { name: 'HTML & CSS', value: 90 },
-    { name: 'React JS', value: 95 },
-    { name: 'JavaScript', value: 88 },
-    { name: 'Next JS', value: 85 },
-  ];
+  
 
   return (
     <div id="about" className="bg-black text-white py-16 px-6 md:px-20 flex flex-col md:flex-row items-center justify-center gap-10 min-h-screen">
